@@ -249,3 +249,82 @@ html, body {
   border-style: solid;
   color: #fff;
 }
+
+
+
+.book-card {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 1.5rem;
+  background-color: rgba(25, 45, 25, 0.95);
+  border-radius: 12px;
+  padding: 1.5rem;
+  box-shadow: 0 4px 10px rgba(127, 255, 127, 0.15);
+  max-width: 800px;
+  margin: 2rem auto;
+  flex-wrap: wrap;
+}
+
+.book-cover {
+  width: 150px;
+  height: 220px;
+  object-fit: contain;
+  border-radius: 6px;
+  background-color: #163116;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.3);
+}
+
+.book-content {
+  flex: 1;
+  color: #ccffcc;
+  font-size: 0.95rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.book-content h3 {
+  margin: 0;
+  color: #baffba;
+}
+
+.book-link {
+  align-self: flex-start;
+  background-color: #2a4a2a;
+  color: #afffaf;
+  padding: 0.5rem 1rem;
+  text-decoration: none;
+  border-radius: 6px;
+  border: 1px dashed #7fff7f;
+  font-weight: bold;
+  transition: all 0.2s;
+}
+
+.book-link:hover {
+  background-color: #3a6a3a;
+  color: white;
+  border-style: solid;
+}
+
+.contact-icons {
+  display: flex;
+  justify-content: center;
+  gap: 2rem;
+  margin-top: 1.5rem;
+}
+
+.icon-link {
+  color: #baffba;
+  font-size: 2rem;
+  transition: transform 0.3s, color 0.3s;
+}
+
+.icon-link:hover {
+  transform: scale(1.2);
+  color: #7fff7f;
+}
+
+#contact {
+height: 100vh;
+}
