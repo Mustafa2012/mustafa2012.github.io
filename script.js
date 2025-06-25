@@ -3,6 +3,23 @@ document.addEventListener("DOMContentLoaded", () => {
   initBackground();
 });
 
+  const dot = document.querySelector(".cursor-dot");
+  const ring = document.querySelector(".cursor-ring");
+
+  document.addEventListener("mousemove", (e) => {
+    const { clientX: x, clientY: y } = e;
+    dot.style.left = `${x}px`;
+    dot.style.top = `${y}px`;
+
+    // Ring trails slightly behind
+    ring.style.left = `${x}px`;
+    ring.style.top = `${y}px`;
+  });
+
+
+
+
+
 // Typewriter effect
 const typeText = ["I am a middle school student with a love for technology"];
 let typeIndex = 0, charIndex = 0;

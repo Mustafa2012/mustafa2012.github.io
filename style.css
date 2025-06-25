@@ -431,3 +431,34 @@ height: 100vh;
   color: #fff;
   border-style: solid;
 }
+
+
+body {
+  cursor: none; /* Hide default system pointer */
+}
+
+.cursor-dot,
+.cursor-ring {
+  position: fixed;
+  pointer-events: none;
+  z-index: 9999;
+  transform: translate(-50%, -50%);
+}
+
+
+.cursor-dot {
+  width: 8px;
+  height: 8px;
+  background-color: #00ffff; 
+  border-radius: 50%;
+}
+
+
+.cursor-ring {
+  width: 32px;
+  height: 32px;
+  border: 2px solid #00ffff;
+  border-radius: 50%;
+  transition: top 0.12s ease, left 0.12s ease;
+  opacity: 0.6;
+}
