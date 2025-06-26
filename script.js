@@ -1,9 +1,38 @@
 document.addEventListener("DOMContentLoaded", () => {
-  type();
-  initBackground();
+  const dots = document.querySelectorAll('.dot');
+  const sections = [
+    document.getElementById('hero'),
+    document.getElementById('about'),
+    document.getElementById('projects'),
+    document.getElementById('book'),
+    document.getElementById('favourite-books'),
+    document.getElementById('contact')
+  ];
+
+  function updateActiveDot() {
+    const scrollPos = window.scrollY + window.innerHeight / 2;
+
+    sections.forEach((section, index) => {
+      if (!section) return;
+
+      const top = section.offsetTop;
+      const bottom = top + section.offsetHeight;
+
+      if (scrollPos >= top && scrollPos < bottom) {
+        dots.forEach(dot => dot.classList.remove('active'));
+        if (dots[index]) dots[index].classList.add('active');
+      }
+    });
+  }
+
+  window.addEventListener('scroll', updateActiveDot);
+  window.addEventListener('load', updateActiveDot);
+
+  updateActiveDot(); // initial call
 });
 
-  const dot = document.querySelector(".cursor-dot");
+
+  let dot = document.querySelector(".cursor-dot");
   const ring = document.querySelector(".cursor-ring");
 
   document.addEventListener("mousemove", (e) => {
@@ -11,7 +40,7 @@ document.addEventListener("DOMContentLoaded", () => {
     dot.style.left = `${x}px`;
     dot.style.top = `${y}px`;
 
-    // Ring trails slightly behind
+   
     ring.style.left = `${x}px`;
     ring.style.top = `${y}px`;
   });
@@ -105,4 +134,5 @@ document.querySelectorAll('.project-card').forEach(card => {
     e.target.style.transform = `rotateY(0deg) rotateX(0deg)`;
   });
 });
+
 

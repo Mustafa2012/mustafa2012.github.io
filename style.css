@@ -551,3 +551,27 @@ body.light-mode .source-link {
   color: #1e4e4e;
 }
 
+.dot-nav {
+  position: fixed;
+  top: 50%;
+  right: 20px;
+  transform: translateY(-50%);
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+  z-index: 1000;
+}
+
+.dot-nav .dot {
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background-color: #bbb;
+  display: block;
+  transition: background-color 0.3s ease;
+}
+
+.dot-nav .dot.active {
+  background-color: #00ffff; /* Highlight color */
+  box-shadow: 0 0 8px #00ffff;
+}

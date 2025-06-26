@@ -14,8 +14,15 @@
 <div class="cursor-ring"></div>
 
   <div class="slider-container">
+<div class="dot-nav">
+  <a href="#hero" class="dot" data-index="0"></a>
+  <a href="#about" class="dot" data-index="1"></a>
+  <a href="#projects" class="dot" data-index="2"></a>
+  <a href="#book" class="dot" data-index="3"></a>
+  <a href="#favourite-books" class="dot" data-index="4"></a>
+  <a href="#contact" class="dot" data-index="5"></a>
+</div>
 
-    
     <section id="hero" class="slide">
       <div class="hero-content">
         <img src="profile.jpg" alt="Mustafa Ali" class="profile-pic" />
@@ -191,7 +198,7 @@
 <script>
   const themeToggle = document.getElementById("theme-toggle");
 
-  // Check saved preference
+ 
   if (localStorage.getItem("theme") === "light") {
     document.body.classList.add("light-mode");
     themeToggle.checked = true;
