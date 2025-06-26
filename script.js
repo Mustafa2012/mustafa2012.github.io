@@ -1,36 +1,7 @@
 document.addEventListener("DOMContentLoaded", () => {
-  const dots = document.querySelectorAll('.dot');
-  const sections = [
-    document.getElementById('hero'),
-    document.getElementById('about'),
-    document.getElementById('projects'),
-    document.getElementById('book'),
-    document.getElementById('favourite-books'),
-    document.getElementById('contact')
-  ];
-
-  function updateActiveDot() {
-    const scrollPos = window.scrollY + window.innerHeight / 2;
-
-    sections.forEach((section, index) => {
-      if (!section) return;
-
-      const top = section.offsetTop;
-      const bottom = top + section.offsetHeight;
-
-      if (scrollPos >= top && scrollPos < bottom) {
-        dots.forEach(dot => dot.classList.remove('active'));
-        if (dots[index]) dots[index].classList.add('active');
-      }
-    });
-  }
-
-  window.addEventListener('scroll', updateActiveDot);
-  window.addEventListener('load', updateActiveDot);
-
-  updateActiveDot(); // initial call
+  type();
+  initBackground();
 });
-
 
   let dot = document.querySelector(".cursor-dot");
   const ring = document.querySelector(".cursor-ring");
@@ -49,7 +20,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
 
 
-// Typewriter effect
+
 const typeText = ["I am a middle school student with a love for technology"];
 let typeIndex = 0, charIndex = 0;
 const typeElem = document.getElementById("typewriter");
@@ -134,5 +105,4 @@ document.querySelectorAll('.project-card').forEach(card => {
     e.target.style.transform = `rotateY(0deg) rotateX(0deg)`;
   });
 });
-
 
