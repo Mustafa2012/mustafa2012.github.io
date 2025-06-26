@@ -91,3 +91,18 @@ function initBackground() {
 
   animate();
 }
+
+
+document.querySelectorAll('.project-card').forEach(card => {
+  card.addEventListener('mousemove', e => {
+    const { offsetX, offsetY, target } = e;
+    const rotateY = (offsetX / target.clientWidth - 0.5) * 10;
+    const rotateX = (offsetY / target.clientHeight - 0.5) * -10;
+    target.style.transform = `rotateY(${rotateY}deg) rotateX(${rotateX}deg)`;
+  });
+
+  card.addEventListener('mouseleave', e => {
+    e.target.style.transform = `rotateY(0deg) rotateX(0deg)`;
+  });
+});
+
