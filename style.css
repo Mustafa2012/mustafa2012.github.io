@@ -575,3 +575,42 @@ body.light-mode .source-link {
   background-color: #00ffff; /* Highlight color */
   box-shadow: 0 0 8px #00ffff;
 }
+
+.shooting-star-button {
+  position: fixed;
+  bottom: 30px;
+  right: 30px;
+  z-index: 10;
+  padding: 12px 20px;
+  font-size: 16px;
+  background: #111;
+  color: white;
+  border: none;
+  border-radius: 10px;
+  cursor: pointer;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+  transition: background 0.3s;
+}
+.shooting-star-button:hover {
+  background: #333;
+}
+
+.comet-btn {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  background: #111;
+  color: white;
+  padding: 10px 20px;
+  font-size: 1rem;
+  border: none;
+  border-radius: 10px;
+  cursor: pointer;
+  z-index: 1000;
+  transition: background 0.3s, color 0.3s;
+}
+
+body.light-mode .comet-btn {
+  background: #ddd;
+  color: #000;
+}

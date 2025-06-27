@@ -6,12 +6,15 @@
   <title>Mustafa Ali | Portfolio</title>
   <link rel="stylesheet" href="style.css" />
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
-  
+
+
 </head>
 <body>
   <canvas id="bgCanvas"></canvas>
 <div class="cursor-dot"></div>
 <div class="cursor-ring"></div>
+
+ <button id="shooting-star-btn" class="shooting-star-button">🌠 Launch Shooting Star</button>
 
   <div class="slider-container">
 <div class="dot-nav">
@@ -117,8 +120,12 @@
       </p>
       <a href="https://www.amazon.com/dp/B0F4YJQP1W" target="_blank" class="book-link">View on Amazon</a>
     </div>
+
+
   </div>
 </section>
+
+ 
 
 
 <section id="favourite-books" class="slide">
@@ -156,11 +163,12 @@
         <a href="https://rickriordan.com/series/percy-jackson-and-the-olympians/" target="_blank">Read More</a>
       </div>
     </div>
+
   </div>
 </section>
 
 
-<section id="contact" class="slide">
+<section id="contact" class="slide" >
   <h2>Contact Me</h2>
   <div class="contact-icons">
     <a href="Mail to: Mustafaali192012@gmail.com" target="_blank" class="icon-link" title="Email">
@@ -215,7 +223,55 @@
   });
 </script>
 
+<script>
+ 
+  const body = document.body;
+  const btn = document.getElementById("shooting-star-btn");
+
+  function updateButtonLabel() {
+    if (body.classList.contains("light-mode")) {
+      btn.textContent = "🌠 Launch Shooting Star";
+    } else {
+      btn.textContent = "☄️ Hurl Comet";
+    }
+  }
+
+  
+  if (localStorage.getItem("theme") === "light") {
+    body.classList.add("light-mode");
+    themeToggle.checked = true;
+  }
+  updateButtonLabel();
+
+  themeToggle.addEventListener("change", () => {
+    if (themeToggle.checked) {
+      body.classList.add("light-mode");
+      localStorage.setItem("theme", "light");
+    } else {
+      body.classList.remove("light-mode");
+      localStorage.setItem("theme", "dark");
+    }
+    updateButtonLabel();
+  });
+
+  
+  btn.addEventListener("click", () => {
+    if (!body.classList.contains("light-mode")) {
+      comets.push({
+        x: Math.random() * canvas.width * 0.5,
+        y: Math.random() * canvas.height * 0.3,
+        vx: 10 + Math.random() * 3,
+        vy: 8 + Math.random() * 2,
+        size: 6,
+        trail: []
+      });
+    } else {
+    s
+    }
+  });
+</script>
+
+
 
 </body>
 </html>
-
