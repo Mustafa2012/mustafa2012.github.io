@@ -599,8 +599,8 @@ body.light-mode .source-link {
   position: fixed;
   bottom: 20px;
   right: 20px;
-  background: #111;
-  color: white;
+  background: #16a599;
+  color: rgb(39, 38, 38);
   padding: 10px 20px;
   font-size: 1rem;
   border: none;

@@ -113,7 +113,7 @@ function initBackground() {
         star.y = 0;
         star.x = Math.random() * canvas.width;
       }
-    }
+    }           
   }
 
   function drawShootingStars() {
