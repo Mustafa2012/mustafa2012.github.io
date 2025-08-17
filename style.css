@@ -614,3 +614,29 @@ body.light-mode .comet-btn {
   background: #ddd;
   color: #000;
 }
+
+
+
+.free-gpu {
+  background: linear-gradient(90deg, #20c997, #17a2b8); /* teal + turquoise */
+  color: white;
+  font-weight: bold;
+  padding: 1rem 2rem;
+  border: none;
+  border-radius: 12px;
+  font-size: 1.2rem;
+  cursor: pointer;
+  animation: pulse 1.5s infinite;
+  box-shadow: 0 0 20px rgba(23, 162, 184, 0.7);
+  transition: transform 0.2s ease;
+}
+
+.free-gpu:hover {
+  transform: scale(1.1);
+}
+
+@keyframes pulse {
+  0% { box-shadow: 0 0 5px #89e8fa, 0 0 15px #17a2b8; }
+  50% { box-shadow: 0 0 25px #89e8fa, 0 0 40px #17a2b8; }
+  100% { box-shadow: 0 0 5px #89e8fa, 0 0 15px #17a2b8; }
+}
