@@ -5,6 +5,10 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Mustafa Ali | Portfolio</title>
   <link rel="stylesheet" href="style.css" />
+  <!-- Fonts: default + neon display -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
 
 
@@ -40,16 +44,14 @@
           <a href="#favourite-books">Fav Books</a>
            <a href="#contact">Contact</a>
 
-          <div class="theme-switch">
-  <input type="checkbox" id="theme-toggle" />
-  <label for="theme-toggle" class="switch">
-    <div class="icons">
-      <span class="moon">🌙</span>
-      <span class="sun">🔆</span>
-    </div>
-    <span class="ball"></span>
-  </label>
-</div>
+          <!-- Right-side: Dark / Light selector -->
+          <div class="theme-switcher" aria-hidden="false">
+            <label for="theme-select" class="theme-label">Theme</label>
+            <select id="theme-select" aria-label="Select site theme (dark or light)">
+              <option value="dark">Midnight</option>
+              <option value="light">Daylight</option>
+            </select>
+          </div>
 
 
         </nav>
@@ -72,7 +74,7 @@
         <li>Writing Novels</li>
         <li>3d Modelling</li>
       </ul>
-    </section>.      
+    </section>
 
 
   
@@ -146,7 +148,7 @@
           <span>CAD</span>
         </div>
         <div class="project-links">
-          <a href=https://github.com/Mustafa2012/League-Deck" target="_blank">Source</a>
+          <a href="https://github.com/Mustafa2012/League-Deck" target="_blank" rel="noopener">Source</a>
         </div>
       </div>
     </div>
@@ -272,7 +274,7 @@
 <section id="contact" class="slide" >
   <h2>Contact Me</h2>
   <div class="contact-icons">
-    <a href="Mail to: Mustafaali192012@gmail.com" target="_blank" class="icon-link" title="Email">
+    <a href="mailto:Mustafaali192012@gmail.com" target="_blank" class="icon-link" title="Email">
       <i class="fas fa-envelope"></i>
     </a>
     <a href="https://www.instagram.com/mustafaali192012/" target="_blank" class="icon-link" title="Instagram">
@@ -288,11 +290,37 @@
 </section>
 
 </div> 
+
+<!-- Desktop-style UI (shown when alternate mode is enabled) -->
+<div id="desktop" class="desktop" aria-hidden="true">
+  <div class="desktop-topbar">
+    <div class="desktop-name">Mustafa Ali</div>
+    <div class="desktop-controls" aria-hidden="false">
+      <div class="desktop-status">
+        <span class="status-item wifi" title="Wi‑Fi"><i class="fas fa-wifi"></i></span>
+        <span class="status-item battery" title="Battery"><i class="fas fa-battery-full"></i></span>
+        <span class="status-item clock" id="desktop-clock" aria-live="polite">--:--</span>
+      </div>
+    </div>
+  </div>
+  <div class="desktop-area" id="desktop-area" role="application" aria-label="Desktop Apps">
+    <!-- app icons are added here dynamically from project cards -->
+  </div>
+
+  <div class="desktop-windows" id="desktop-windows" aria-hidden="true">
+    <!-- app windows will be injected here when users open an app -->
+  </div>
+
+  <div class="desktop-dock" id="desktop-dock" aria-hidden="true">
+    <!-- dock / quick launch icons will be added dynamically -->
+    <div class="dock-space"></div>
+  </div>
+</div>
  
 <footer class="footer">
     <p>&copy; 2025 <b>Mustafa</b>. All rights reserved.</p>
   <a
-    href="https://github.com/Mustafa2012/Portfolio"
+    href="https://github.com/Mustafa2012/mustafa2012.github.io"
     class="source-link"
     target="_blank"
     rel="noopener noreferrer"
@@ -304,73 +332,14 @@
 
 <script src="https://unpkg.com/cursor-effects@latest/dist/browser.js"></script>
 <script src="script.js"></script>
-<script>
-  const themeToggle = document.getElementById("theme-toggle");
+<!-- left-side: alternate layout toggle -->
+<div class="left-toggle-wrap" aria-hidden="false">
+  <input type="checkbox" id="alt-layout-toggle" aria-label="Enable alternate layout">
+  <label for="alt-layout-toggle" class="alt-toggle">Alternate Mode</label>
+</div>
+<!-- theme handling moved to script.js (centralized) -->
 
- 
-  if (localStorage.getItem("theme") === "light") {
-    document.body.classList.add("light-mode");
-    themeToggle.checked = true;
-  }
-
-  themeToggle.addEventListener("change", () => {
-    if (themeToggle.checked) {
-      document.body.classList.add("light-mode");
-      localStorage.setItem("theme", "light");
-    } else {
-      document.body.classList.remove("light-mode");
-      localStorage.setItem("theme", "dark");
-    }
-  });
-</script>
-
-<script>
- 
-  const body = document.body;
-  const btn = document.getElementById("shooting-star-btn");
-
-  function updateButtonLabel() {
-    if (body.classList.contains("light-mode")) {
-      btn.textContent = "🌠 Launch Shooting Star";
-    } else {
-      btn.textContent = "☄️ Hurl Comet";
-    }
-  }
-
-  
-  if (localStorage.getItem("theme") === "light") {
-    body.classList.add("light-mode");
-    themeToggle.checked = true;
-  }
-  updateButtonLabel();
-
-  themeToggle.addEventListener("change", () => {
-    if (themeToggle.checked) {
-      body.classList.add("light-mode");
-      localStorage.setItem("theme", "light");
-    } else {
-      body.classList.remove("light-mode");
-      localStorage.setItem("theme", "dark");
-    }
-    updateButtonLabel();
-  });
-
-  
-  btn.addEventListener("click", () => {
-    if (!body.classList.contains("light-mode")) {
-      comets.push({
-        x: Math.random() * canvas.width * 0.5,
-        y: Math.random() * canvas.height * 0.3,
-        vx: 10 + Math.random() * 3,
-        vy: 8 + Math.random() * 2,
-        size: 6,
-        trail: []
-      });
-    } else {
-    s
-    }
-  });
-</script>
+<!-- reset UI button removed per user request -->
 
 
 
