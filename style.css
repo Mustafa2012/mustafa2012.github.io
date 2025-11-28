@@ -754,6 +754,35 @@ body.light-mode .desktop-status .status-item{ background: rgba(255,255,255,0.03)
 
 .app-window.maximized{ left: 8px !important; top: 68px !important; right: 8px !important; width: calc(100% - 16px) !important; height: calc(100% - 90px) !important; border-radius: 8px; }
 
+/* animate transforms for minimizing/restoring */
+.app-window{
+  transition: transform 320ms cubic-bezier(.2,.9,.2,1), opacity 220ms linear;
+  will-change: transform, opacity;
+}
+.app-window.minimizing, .app-window.restoring{
+  transition: transform 320ms cubic-bezier(.2,.9,.2,1), opacity 200ms linear;
+}
+
+/* App popups should be light grey (not the dark about popup) */
+.app-window:not([data-about="1"]) {
+  /* slightly darker, warmer grey for better contrast */
+  background: linear-gradient(180deg,#e9edf1 0%, #dfe6ea 100%);
+  color: #111;
+  border: 1px solid rgba(0,0,0,0.09);
+  box-shadow: 0 36px 80px rgba(8, 10, 14, 0.14), 0 8px 22px rgba(0,0,0,0.06) inset;
+}
+.app-window:not([data-about="1"]) .win-header{ background: linear-gradient(180deg,#ffffffcc,#f2f2f4cc); }
+.app-window:not([data-about="1"]) .win-title{ color: #111; }
+.app-window:not([data-about="1"]) .win-body{ color:#222; }
+
+/* keep light styling consistent when in alt-mode */
+.alt-mode .app-window:not([data-about="1"]) {
+  /* alt-mode variant: a touch darker than the previous lighter grey */
+  background: linear-gradient(180deg,#eef2f5 0%, #e6ebee 100%);
+  color: #111;
+  border: 1px solid rgba(0,0,0,0.10);
+}
+
 /* About window specific styling: wider / horizontal layout and grey background */
 .app-window[data-about="1"]{
   width: 1100px !important;
@@ -808,6 +837,40 @@ body.light-mode .desktop-status .status-item{ background: rgba(255,255,255,0.03)
 
 /* Dock restore area */
 .desktop-dock{ display:none; }
+
+/* Desktop dock: visible inside alt-mode */
+.alt-mode .desktop-dock{
+  display: flex;
+  position: fixed;
+  left: 50%;
+  transform: translateX(-50%);
+  bottom: 18px;
+  z-index: 1400;
+  pointer-events: auto;
+  padding: 8px 12px;
+  border-radius: 14px;
+  background: linear-gradient(180deg, rgba(255,255,255,0.06), rgba(0,0,0,0.06));
+  border: 1px solid rgba(255,255,255,0.06);
+  backdrop-filter: blur(6px);
+  box-shadow: 0 12px 40px rgba(0,0,0,0.45);
+  min-width: 160px;
+  gap: 8px;
+  align-items: center;
+  justify-content: center;
+}
+
+.desktop-dock .dock-inner{ display:flex; gap:10px; align-items:center; padding:4px; }
+.desktop-dock .dock-item{ width:64px; min-width:64px; display:flex; flex-direction:column; align-items:center; gap:6px; cursor:pointer; }
+.desktop-dock .dock-item{ transition: opacity 160ms linear, transform 180ms cubic-bezier(.2,.9,.2,1); }
+.desktop-dock .dock-item img{ width:56px; height:56px; object-fit:cover; border-radius:10px; border:1px solid rgba(255,255,255,0.06); box-shadow: 0 6px 18px rgba(0,0,0,0.35) inset; }
+.desktop-dock .dock-item .dock-label{ font-size:0.72rem; color: #eee; text-shadow: 0 1px 6px rgba(0,0,0,0.45); white-space:nowrap; max-width:64px; overflow:hidden; text-overflow:ellipsis; }
+
+/* Make dock subtle on small screens */
+@media (max-width: 700px){
+  .alt-mode .desktop-dock{ left: 50%; bottom: 8px; padding:6px 8px; }
+  .desktop-dock .dock-item img{ width:44px;height:44px }
+  .desktop-dock .dock-item{ width:52px; min-width:52px }
+}
 
 /* responsive adjustments for small screens */
 @media (max-width: 600px){

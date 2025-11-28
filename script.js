@@ -302,6 +302,142 @@ let __desktopBuilt = false;
 let __zCounter = 1500;
 let __clockInterval = null;
 
+// --- Dock helpers (global) ---
+function getDockRoot(){ return document.getElementById('desktop-dock-inner'); }
+function addToDock(win, title, imgSrc){
+  const dockRoot = getDockRoot(); if(!dockRoot) return null;
+  const id = win.dataset.winId || `win-${Date.now()}-${Math.random().toString(36).slice(2,6)}`;
+  win.dataset.winId = id;
+  if(dockRoot.querySelector(`.dock-item[data-win-id="${id}"]`)) return null;
+  const entry = document.createElement('div');
+  entry.className = 'dock-item'; entry.dataset.winId = id;
+  entry.innerHTML = `<img src="${imgSrc || ''}" alt="${title}"><div class="dock-label">${title}</div>`;
+  // make entry initially invisible so we can animate the window into it
+  entry.style.opacity = '0';
+  entry.addEventListener('click', ()=>{
+    const w = document.querySelector(`.app-window[data-win-id="${id}"]`);
+    if(w){
+      // animate restore from dock to window
+      restoreWindowFromDock(w, entry);
+    }
+  });
+  dockRoot.appendChild(entry);
+  return entry;
+}
+
+// animate minimize: move a window into the dock entry
+function animateMinimizeToDock(win, title, imgSrc){
+  if(!win) return;
+  const entry = addToDock(win, title, imgSrc);
+  if(!entry) {
+    // fallback: just hide
+    win.style.display = 'none';
+    return;
+  }
+
+  const img = entry.querySelector('img');
+
+  // measure
+  const winRect = win.getBoundingClientRect();
+  const dockRect = img ? img.getBoundingClientRect() : { left: window.innerWidth/2, top: window.innerHeight-40, width:48, height:48 };
+
+  // store previous position for restoring
+  win.dataset.prevLeft = parseInt(win.style.left || winRect.left);
+  win.dataset.prevTop = parseInt(win.style.top || winRect.top);
+
+  const winCenterX = winRect.left + winRect.width/2;
+  const winCenterY = winRect.top + winRect.height/2;
+  const dockCenterX = dockRect.left + dockRect.width/2;
+  const dockCenterY = dockRect.top + dockRect.height/2;
+  const dx = Math.round(dockCenterX - winCenterX);
+  const dy = Math.round(dockCenterY - winCenterY);
+  const scale = Math.max(0.12, dockRect.width / winRect.width);
+
+  // make sure entry is invisible (it was created with opacity:0) and then animate window to it
+  entry.style.opacity = '0';
+
+  // prepare animation
+  win.classList.add('minimizing');
+  win.style.transition = 'transform 320ms cubic-bezier(.2,.9,.2,1), opacity 220ms linear';
+  win.style.transform = `translate(${dx}px, ${dy}px) scale(${scale})`;
+  win.style.opacity = '0.08';
+
+  function onEnd(e){
+    if(e && e.propertyName && e.propertyName !== 'transform') return;
+    win.classList.remove('minimizing');
+    win.style.display = 'none';
+    win.style.transform = '';
+    win.style.opacity = '';
+    win.removeEventListener('transitionend', onEnd);
+    // reveal dock entry after animation
+    entry.style.transition = 'opacity 180ms linear';
+    entry.style.opacity = '1';
+  }
+
+  win.addEventListener('transitionend', onEnd);
+}
+
+// animate restore: take a dock entry and the window, animate window expanding from dock to stored position
+function restoreWindowFromDock(win, entry){
+  if(!win) { if(entry) entry.remove(); return; }
+  // remove dock entry after we start restore animation
+  const img = entry.querySelector('img');
+  // compute bounds
+  // make window visible temporarily (hidden) to measure size
+  const wasHidden = win.style.display === 'none' || getComputedStyle(win).display === 'none';
+  win.style.display = 'flex';
+  win.style.visibility = 'hidden';
+
+  // read sizes
+  const winRect = win.getBoundingClientRect();
+  const targetLeft = parseInt(win.dataset.prevLeft || winRect.left);
+  const targetTop = parseInt(win.dataset.prevTop || winRect.top);
+
+  // target final position should be the previous left/top we saved
+  // compute dock image center
+  const dockRect = img ? img.getBoundingClientRect() : {left: window.innerWidth/2, top: window.innerHeight - 40, width: 48, height:48};
+  const dockCenterX = dockRect.left + dockRect.width/2;
+  const dockCenterY = dockRect.top + dockRect.height/2;
+  const winCenterX = targetLeft + winRect.width/2;
+  const winCenterY = targetTop + winRect.height/2;
+
+  const dx = dockCenterX - winCenterX;
+  const dy = dockCenterY - winCenterY;
+  const scale = Math.max(0.18, (dockRect.width / winRect.width));
+
+  // position window at its final coords for correct transform origin
+  win.style.left = targetLeft + 'px';
+  win.style.top = targetTop + 'px';
+  win.dataset.winId = win.dataset.winId || `win-${Date.now()}-${Math.random().toString(36).slice(2,6)}`;
+
+  // set initial transform so it looks like it's coming from the dock
+  win.style.transform = `translate(${dx}px, ${dy}px) scale(${scale})`;
+  win.style.opacity = '0.05';
+  win.style.visibility = 'visible';
+
+  // trigger reflow then animate to identity
+  requestAnimationFrame(()=>{
+    // mark restoring state
+    win.classList.add('restoring');
+    win.style.transform = '';
+    win.style.opacity = '1';
+  });
+
+  function onEnd(e){
+    if(e && e.propertyName && e.propertyName !== 'transform') return;
+    win.classList.remove('restoring');
+    win.style.transform = '';
+    win.style.opacity = '';
+    win.style.visibility = '';
+    entry.remove();
+    win.removeEventListener('transitionend', onEnd);
+  }
+  win.addEventListener('transitionend', onEnd);
+}
+function removeDockEntryForWin(win){
+  const id = win.dataset.winId; if(!id) return; const e = getDockRoot()?.querySelector(`.dock-item[data-win-id="${id}"]`); if(e) e.remove();
+}
+
 function buildDesktopApps(){
   if(__desktopBuilt) return;
   __desktopBuilt = true;
@@ -341,24 +477,39 @@ function buildDesktopApps(){
     win.style.zIndex = __zCounter;
     document.querySelectorAll('.app-window.focused').forEach(w=>w.classList.remove('focused'));
     win.classList.add('focused');
+
+    // (dock helpers moved to global scope)
   }
 
   // create a window element when opening
+
   function openAppWindow(index, projectCard){
-    // ensure we have a project content to show
-    const title = `App ${index + 1}`;
+    // Use project info for popup
+    const title = projectCard.querySelector('.project-title')?.textContent?.trim() || `App ${index + 1}`;
+    const desc = projectCard.querySelector('.project-desc')?.textContent?.trim() || '';
+    const tags = Array.from(projectCard.querySelectorAll('.project-tags span')).map(e => e.textContent.trim());
+    const links = Array.from(projectCard.querySelectorAll('.project-links a')).map(a => ({
+      href: a.href,
+      text: a.textContent.trim(),
+      target: a.target || '',
+      rel: a.rel || ''
+    }));
+    const imgElem = projectCard.querySelector('.project-image');
+    const imgSrc = imgElem ? (imgElem.src || '') : '';
 
     // window container
     const win = document.createElement('div');
     win.className = 'app-window';
-    win.style.left = `${120 + (index * 24) % 300}px`;
-    win.style.top = `${60 + (index * 14) % 180}px`;
+    // start centered so the window opens in the middle of the viewport
+    win.style.left = '50%';
+    win.style.top = '50%';
+    win.style.transform = 'translate(-50%, -50%)';
     win.style.zIndex = (++__zCounter);
 
     win.innerHTML = `
       <div class="win-header" role="toolbar" aria-label="${title} window controls">
         <div style="display:flex;align-items:center;gap:8px">
-          <div class="win-icon" style="width:36px;height:36px;border-radius:8px;overflow:hidden">${projectCard.querySelector('.project-image') ? projectCard.querySelector('.project-image').outerHTML : ''}</div>
+          <div class="win-icon" style="width:36px;height:36px;border-radius:8px;overflow:hidden">${imgSrc ? `<img src="${imgSrc}" alt="${title}" style="width:100%;height:100%;border-radius:8px;object-fit:cover;">` : ''}</div>
           <div class="win-title">${title}</div>
         </div>
         <div class="win-controls">
@@ -370,20 +521,34 @@ function buildDesktopApps(){
       <div class="win-body"></div>
     `;
 
-    // populate the window with a neutral mock app interface (no personal details)
+    // populate the window with project info
     const bodyContainer = win.querySelector('.win-body');
     bodyContainer.innerHTML = `
-      <div style="display:flex;flex-direction:column;gap:8px;height:100%;">
-        <div style="height:120px;background:linear-gradient(90deg,rgba(255,255,255,0.02),rgba(0,0,0,0.05));border-radius:8px;display:flex;align-items:center;justify-content:center;color:var(--muted);font-weight:700;">${title} — Welcome</div>
-        <div style="display:flex;gap:8px;flex-wrap:wrap;">
-          <div style="width:110px;height:110px;border-radius:8px;background:linear-gradient(135deg,#222,#0c0c24);box-shadow:inset 0 5px 12px rgba(255,255,255,0.02);"></div>
-          <div style="flex:1;background:linear-gradient(180deg,rgba(0,0,0,0.02),rgba(255,255,255,0.01));border-radius:8px;padding:12px;color:var(--muted);font-size:0.9rem">This is a self-contained app window — intentionally contains no personal information.</div>
+      <div style="display:flex;flex-direction:column;gap:14px;height:100%;padding:8px 2px 2px 2px;">
+        <div style="display:flex;align-items:flex-start;gap:18px;">
+          ${imgSrc ? `<img src="${imgSrc}" alt="${title}" style="width:110px;height:110px;border-radius:12px;object-fit:cover;box-shadow:0 2px 12px rgba(0,0,0,0.10);">` : ''}
+          <div style="flex:1;min-width:0;">
+            <div style="font-size:1.08rem;font-weight:600;margin-bottom:2px;">${title}</div>
+            <div style="font-size:0.93rem;margin-bottom:6px;color:inherit;">${desc}</div>
+            ${tags.length ? `<div style="margin-bottom:8px;">${tags.map(t => `<span style='display:inline-block;background:#2a2a2a;color:#b7eaff;font-size:0.75rem;padding:2px 8px;border-radius:8px;margin-right:4px;'>${t}</span>`).join('')}</div>` : ''}
+            ${links.length ? `<div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:6px;">${links.map(l => `<a href='${l.href}' target='${l.target}' rel='${l.rel}' style='background:#222;color:#7df9ff;font-size:0.85rem;padding:6px 14px;border-radius:8px;text-decoration:none;font-weight:600;transition:background 0.2s;'>${l.text}</a>`).join('')}</div>` : ''}
+          </div>
         </div>
-        <div style="margin-top:auto;color:var(--muted);font-size:0.8rem">Tip: drag the window by its header — click close to dismiss.</div>
       </div>
     `;
 
     windowsRoot.appendChild(win);
+
+    // after added to DOM, compute accurate centered pixel position and clamp to viewport
+    const rect = win.getBoundingClientRect();
+    let centeredLeft = Math.round((window.innerWidth - rect.width) / 2);
+    let centeredTop = Math.round((window.innerHeight - rect.height) / 2);
+    const MARGIN = 12;
+    centeredLeft = Math.max(MARGIN, centeredLeft);
+    centeredTop = Math.max(MARGIN, centeredTop);
+    win.style.transform = '';
+    win.style.left = centeredLeft + 'px';
+    win.style.top = centeredTop + 'px';
 
     // focus
     focusWindow(win);
@@ -412,9 +577,17 @@ function buildDesktopApps(){
     const minBtn = win.querySelector('.win-min');
     const toggleBtn = win.querySelector('.win-toggle');
 
-    closeBtn.addEventListener('click', ()=>{ win.remove(); });
+    closeBtn.addEventListener('click', ()=>{ 
+      // remove any dock entry tied to this window
+      removeDockEntryForWin(win);
+      win.remove();
+    });
 
-    minBtn.addEventListener('click', ()=>{ win.style.display = 'none'; });
+    // min => minimize into dock (animated)
+    minBtn.addEventListener('click', ()=>{
+      // animate into dock
+      animateMinimizeToDock(win, title, imgSrc);
+    });
 
     toggleBtn.addEventListener('click', ()=>{ win.classList.toggle('maximized'); focusWindow(win); });
   }
@@ -525,8 +698,8 @@ function openAboutWindow(){
     document.addEventListener('mouseup', ()=>{ if(dragging){ dragging=false; win.style.cursor='default'; win.style.transition = ''; }});
 
     // close/min/max handlers
-    win.querySelector('.win-close').addEventListener('click', ()=> win.remove());
-    win.querySelector('.win-min').addEventListener('click', ()=> win.style.display = 'none');
+    win.querySelector('.win-close').addEventListener('click', ()=>{ removeDockEntryForWin(win); win.remove(); });
+    win.querySelector('.win-min').addEventListener('click', ()=>{ animateMinimizeToDock(win, title, heroImg ? heroImg.src : ''); });
     win.querySelector('.win-toggle').addEventListener('click', ()=>{ 
       // when maximizing, clear left positioning so CSS 'maximized' state can take over cleanly
       const max = win.classList.toggle('maximized');
