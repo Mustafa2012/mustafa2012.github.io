@@ -3,6 +3,8 @@ document.addEventListener("DOMContentLoaded", () => {
   initBackground();
   initTheme();
   initAltLayout();
+  // open the About popup immediately on page load
+  openAboutWindow();
 });
 
 const btn = document.getElementById("shooting-star-btn");
@@ -39,6 +41,22 @@ document.addEventListener("DOMContentLoaded", updateButtonText);
     ring.style.left = `${x}px`;
     ring.style.top = `${y}px`;
   });
+
+  // add small interactive behavior for the custom cursor (used in alt-mode)
+  if(dot){
+    // press animations
+    document.addEventListener('mousedown', ()=> dot.classList.add('cursor-press'));
+    document.addEventListener('mouseup', ()=> dot.classList.remove('cursor-press'));
+
+    // enlarge slightly over interactive elements so users still get affordance
+    const interactiveSelector = 'a, button, input, select, textarea, [role="button"], .app-icon';
+    document.addEventListener('mouseover', (ev) => {
+      if(ev.target.closest && ev.target.closest(interactiveSelector)) dot.classList.add('cursor-hover');
+    });
+    document.addEventListener('mouseout', (ev) => {
+      if(ev.target.closest && ev.target.closest(interactiveSelector)) dot.classList.remove('cursor-hover');
+    });
+  }
 
 document.getElementById("free-gpu-btn").addEventListener("click", () => {
   window.open("https://www.youtube.com/watch?v=dQw4w9WgXcQ", "_blank");
@@ -290,15 +308,14 @@ function buildDesktopApps(){
 
   const desktop = document.getElementById('desktop');
   const desktopArea = document.getElementById('desktop-area');
-  const dock = document.getElementById('desktop-dock');
   const windowsRoot = document.getElementById('desktop-windows');
-  if(!desktopArea || !dock || !windowsRoot) return;
+  if(!desktopArea || !windowsRoot) return;
 
   // Build generic app icons (no personal/project details)
   const projects = document.querySelectorAll('.project-card');
   projects.forEach((p, idx) => {
-    // create neutral app title (no personal/project text)
-    const appTitle = `App ${idx + 1}`;
+    // Use project title if available, else fallback
+    let appTitle = p.querySelector('.project-title')?.textContent?.trim() || `App ${idx + 1}`;
     const imgElem = p.querySelector('.project-image');
     const imgSrc = imgElem ? (imgElem.src || '') : '';
 
@@ -308,21 +325,14 @@ function buildDesktopApps(){
     icon.setAttribute('role','button');
     icon.setAttribute('tabindex','0');
     icon.dataset.projectIndex = idx;
-    icon.innerHTML = `\n      <div class="icon-img">${imgSrc ? `<img src="${imgSrc}" alt="${appTitle}" style="width:100%;height:100%;border-radius:10px;object-fit:cover;">` : '<div style="width:100%;height:100%;background:linear-gradient(90deg,#3b3b3b,#1a1a1a);border-radius:8px"></div>'}</div>`;
+    icon.innerHTML = `\n      <div class="icon-img">${imgSrc ? `<img src="${imgSrc}" alt="${appTitle}" style="width:100%;height:100%;border-radius:10px;object-fit:cover;">` : '<div style="width:100%;height:100%;background:linear-gradient(90deg,#3b3b3b,#1a1a1a);border-radius:8px"></div>'}</div>\n      <div class="icon-label">${appTitle}</div>`;
 
     // click/enter opens the app window
     icon.addEventListener('click', () => openAppWindow(idx, p));
     icon.addEventListener('keydown', (e) => { if(e.key === 'Enter' || e.key === ' ') { openAppWindow(idx, p); e.preventDefault(); } });
 
     desktopArea.appendChild(icon);
-
-    // Add to dock quick-launch as well (a compact icon)
-    const dockIcon = document.createElement('div');
-    dockIcon.className = 'dock-icon';
-    dockIcon.title = '';
-    dockIcon.innerHTML = imgSrc ? `<img src="${imgSrc}" alt="" style="width:80%;height:80%;object-fit:cover;border-radius:8px">` : `<span></span>`;
-    dockIcon.addEventListener('click', () => openAppWindow(idx, p));
-    dock.appendChild(dockIcon);
+    // no dock icon created — desktop is privacy/clean (no bottom panel)
   });
 
   // small helper: bring window to front
@@ -404,23 +414,127 @@ function buildDesktopApps(){
 
     closeBtn.addEventListener('click', ()=>{ win.remove(); });
 
-    minBtn.addEventListener('click', ()=>{
-      win.style.display = 'none';
-      // add a restore icon in the dock-space
-      const restore = document.createElement('div');
-      restore.className = 'restore-icon';
-      const img = projectCard.querySelector('.project-image');
-      if(img){ restore.innerHTML = `<img src="${img.src}" alt="restore">`; }
-      // restore on click
-      restore.addEventListener('click', ()=>{ win.style.display = 'flex'; restore.remove(); focusWindow(win); });
-      dock.querySelector('.dock-space').appendChild(restore);
-    });
+    minBtn.addEventListener('click', ()=>{ win.style.display = 'none'; });
 
     toggleBtn.addEventListener('click', ()=>{ win.classList.toggle('maximized'); focusWindow(win); });
   }
 
   // expose for debugging
   window.openAppWindow = openAppWindow;
+}
+
+/* ---------------- About popup (open on load) ---------------- */
+function openAboutWindow(){
+  try{
+    const windowsRoot = document.getElementById('desktop-windows');
+    if(!windowsRoot) return;
+
+    // If there's already an About window open, focus it instead
+    const existing = document.querySelector('.app-window[data-about="1"]');
+    if(existing){ existing.style.display = 'flex'; existing.classList.add('focused'); existing.style.zIndex = ++__zCounter; return; }
+
+    const aboutSection = document.getElementById('about');
+    const heroImg = document.querySelector('.profile-pic');
+
+    const win = document.createElement('div');
+    win.className = 'app-window';
+    win.dataset.about = '1';
+    // start centered using transform so first render places the window near center
+    win.style.left = '50%';
+    win.style.top = '50%';
+    win.style.transform = 'translate(-50%, -50%)';
+    win.style.zIndex = (++__zCounter);
+
+    const title = 'About';
+    win.classList.add('about-window');
+    win.innerHTML = `
+      <div class="win-header" role="toolbar" aria-label="About window controls">
+        <div style="display:flex;align-items:center;gap:8px">
+          <!-- removed small preview thumbnail to keep the About header clean -->
+          <div class="win-title">${title}</div>
+        </div>
+        <div class="win-controls">
+          <button class="win-close btn-close" title="Close"></button>
+          <button class="win-min btn-min" title="Minimize"></button>
+          <button class="win-toggle btn-toggle" title="Maximize"></button>
+        </div>
+      </div>
+      <div class="win-body"></div>
+    `;
+
+    const body = win.querySelector('.win-body');
+    if(aboutSection){
+      const clone = aboutSection.cloneNode(true);
+      // ensure links open new tabs
+      clone.querySelectorAll('a').forEach(a => a.setAttribute('target','_blank'));
+      // prepend a profile image if available and not part of about
+      if(heroImg){
+        // create a fixed-width left pane that holds the profile image
+        const left = document.createElement('div');
+        left.style.flex = '0 0 160px';
+        left.style.display = 'flex';
+        left.style.alignItems = 'center';
+        left.style.justifyContent = 'center';
+        // keep a clean container and let CSS handle how the image fits inside
+        left.innerHTML = `<div style="width:160px;border-radius:12px;overflow:hidden;border:1px solid rgba(0,0,0,0.06);display:flex;align-items:center;justify-content:center;">${heroImg.outerHTML}</div>`;
+
+        const right = document.createElement('div');
+        right.className = 'about-content';
+        // if the about section contains the h2 and content, keep those but remove big headers
+        // we strip heavy layout and just move children
+        while(clone.childNodes.length) right.appendChild(clone.childNodes[0]);
+
+        body.appendChild(left);
+        body.appendChild(right);
+      } else {
+        const right = document.createElement('div');
+        right.className = 'about-content';
+        right.appendChild(clone);
+        body.appendChild(right);
+      }
+    } else {
+      body.textContent = 'About information is not available.';
+    }
+
+    windowsRoot.appendChild(win);
+
+    // compute pixel-accurate centered position after render so dragging math is simpler
+    const rect = win.getBoundingClientRect();
+    let centeredLeft = Math.round((window.innerWidth - rect.width) / 2);
+    let centeredTop = Math.round((window.innerHeight - rect.height) / 2);
+
+    // clamp to a small margin to ensure the window never opens off-screen
+    const MARGIN = 12;
+    centeredLeft = Math.max(MARGIN, centeredLeft);
+    centeredTop = Math.max(MARGIN, centeredTop);
+
+    // remove transform and set explicit pixel positions for consistent dragging/focusing math
+    win.style.transform = '';
+    win.style.left = centeredLeft + 'px';
+    win.style.top = centeredTop + 'px';
+
+    // small helper to focus
+    function focusWindow(win){ __zCounter += 1; win.style.zIndex = __zCounter; document.querySelectorAll('.app-window.focused').forEach(w=>w.classList.remove('focused')); win.classList.add('focused'); }
+    focusWindow(win);
+
+    // draggable
+    const header = win.querySelector('.win-header');
+    let dragging = false, startX=0, startY=0, startLeft=0, startTop=0;
+    header.addEventListener('mousedown', (ev)=>{ dragging = true; startX = ev.clientX; startY = ev.clientY; startLeft = parseInt(win.style.left) || 120; startTop = parseInt(win.style.top) || 60; win.style.transition = 'none'; win.style.cursor = 'grabbing'; focusWindow(win); ev.preventDefault(); });
+    document.addEventListener('mousemove', (ev)=>{ if(!dragging) return; const dx = ev.clientX - startX, dy = ev.clientY - startY; win.style.left = `${startLeft + dx}px`; win.style.top = `${startTop + dy}px`; });
+    document.addEventListener('mouseup', ()=>{ if(dragging){ dragging=false; win.style.cursor='default'; win.style.transition = ''; }});
+
+    // close/min/max handlers
+    win.querySelector('.win-close').addEventListener('click', ()=> win.remove());
+    win.querySelector('.win-min').addEventListener('click', ()=> win.style.display = 'none');
+    win.querySelector('.win-toggle').addEventListener('click', ()=>{ 
+      // when maximizing, clear left positioning so CSS 'maximized' state can take over cleanly
+      const max = win.classList.toggle('maximized');
+      if(max){ win.style.left = ''; win.style.top = ''; } 
+      focusWindow(win); 
+    });
+
+  }catch(e){ console.error('openAboutWindow error', e); }
 }
 
 /* desktop status helpers (clock) */

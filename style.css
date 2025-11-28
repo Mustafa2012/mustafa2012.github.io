@@ -1,3 +1,11 @@
+/* Use default system cursor in alt-mode and hide overlays */
+.alt-mode {
+  cursor: default !important;
+}
+.alt-mode .cursor-dot,
+.alt-mode .cursor-ring {
+  display: none !important;
+}
 :root{
   --font-main: 'Poppins', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
   --font-display: 'Orbitron', 'Poppins', sans-serif;
@@ -474,6 +482,16 @@ height: 100vh;
   opacity: 0.6;
 }
 
+/* Custom thick, rounded triangle cursor with white border for alternate (desktop) mode */
+.alt-mode .cursor-dot {
+  width: 32px;
+/* Remove custom alt-mode cursor for now; will use image-based cursor when provided */
+.alt-mode .cursor-dot,
+.alt-mode .cursor-ring {
+  display: none !important;
+}
+}
+
 .theme-switch {
   position: fixed;
   top: 20px;
@@ -532,8 +550,8 @@ body.light-mode .source-link {
 /* theme selector (select element) */
 .theme-switcher {
   position: fixed;
-  top: 18px;
-  right: 18px;
+  top: 6px; /* moved slightly higher */
+  right: 120px; /* move slightly left so desktop-status (top-right) doesn't overlap */
   z-index: 9999;
   display: flex;
   align-items: center;
@@ -546,7 +564,7 @@ body.light-mode .source-link {
 }
 
 .theme-switcher .theme-label{
-  color: var(--muted);
+  color: #fff;
   font-size: 0.85rem;
 }
 
@@ -554,8 +572,8 @@ body.light-mode .source-link {
   -webkit-appearance: none;
   appearance: none;
   border: none;
-  background: linear-gradient(180deg, rgba(255,255,255,0.03), rgba(0,0,0,0.05));
-  color: var(--text);
+  background: rgba(255,255,255,0.06);
+  color: #fff;
   padding: 6px 10px;
   border-radius: 10px;
   font-weight: 700;
@@ -568,7 +586,8 @@ body.light-mode .source-link {
 .left-toggle-wrap{
   position: fixed;
   left: 18px;
-  top: 18px;
+  /* vertically center the toggle inside the topbar (56px height) */
+  top: 6px; /* nudged slightly higher so it sits cleaner with the topbar */
   z-index: 9999;
   display: flex;
   align-items: center;
@@ -581,8 +600,8 @@ body.light-mode .source-link {
 .left-toggle-wrap input{ display: none; }
 .left-toggle-wrap .alt-toggle{
   display:inline-block;
-  background: linear-gradient(90deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));
-  padding: 6px 10px; border-radius: 8px; font-weight:700; color:var(--text);
+  background: transparent;
+  padding: 6px 10px; border-radius: 8px; font-weight:700; color:#fff;
   cursor: pointer; box-shadow: 0 4px 14px rgba(0,0,0,0.25);
 }
 
@@ -603,18 +622,18 @@ body.light-mode .source-link {
   display: none !important;
 }
 
-.desktop-topbar{ position:fixed; left:0; right:0; top:0; height:56px; display:flex; align-items:center; justify-content:space-between; padding:0 18px; z-index:1200; pointer-events:auto; background: linear-gradient(180deg, rgba(0,0,0,0.36), rgba(0,0,0,0.12)); backdrop-filter: blur(6px); border-bottom: 1px solid rgba(0,0,0,0.24); }
-.desktop-topbar .desktop-name{ font-family:var(--font-display); font-weight:700; color:var(--text); font-size:1.1rem; letter-spacing:1px; position:absolute; left:50%; transform:translateX(-50%); text-align:center; }
-.desktop-topbar .desktop-controls{ color:var(--muted); }
+.desktop-topbar{ position:fixed; left:0; right:0; top:0; height:56px; display:flex; align-items:center; justify-content:space-between; padding:0 18px; z-index:1200; pointer-events:auto; background: rgba(0,0,0,0.95); border-bottom: 1px solid rgba(255,255,255,0.06); box-shadow: 0 2px 10px rgba(0,0,0,0.35); }
+.desktop-topbar .desktop-name{ font-family:var(--font-display); font-weight:700; color:#fff; font-size:1.1rem; letter-spacing:1px; position:absolute; left:50%; transform:translateX(-50%); text-align:center; }
+.desktop-topbar .desktop-controls{ color:#fff; }
 
-.desktop-status{ display:flex; align-items:center; gap:10px; }
-.desktop-status .status-item{ display:inline-flex; align-items:center; justify-content:center; width:34px; height:34px; border-radius:8px; background: rgba(255,255,255,0.02); color: var(--muted); font-weight:700; font-size:13px; }
+.desktop-status{ display:flex; align-items:center; gap:10px; position:absolute; right:18px; top:50%; transform:translateY(-50%); z-index:13001; }
+.desktop-status .status-item{ display:inline-flex; align-items:center; justify-content:center; width:34px; height:34px; border-radius:8px; background: rgba(255,255,255,0.03); color: #fff; font-weight:700; font-size:13px; }
 .desktop-status .status-item.wifi i, .desktop-status .status-item.battery i{ font-size:14px; }
 .desktop-status .status-item.clock{ min-width:68px; padding:4px 8px; border-radius:8px; text-align:center; }
 
 /* Slightly brighter topbar on light-mode so the top doesn't look white */
-body.light-mode .desktop-topbar{ background: linear-gradient(180deg, rgba(255,255,255,0.8), rgba(255,255,255,0.7)); color: #222; border-bottom: 1px solid rgba(0,0,0,0.08); }
-body.light-mode .desktop-status .status-item{ background: rgba(0,0,0,0.03); color: #333; }
+body.light-mode .desktop-topbar{ background: rgba(0,0,0,0.95); color: #fff; border-bottom: 1px solid rgba(255,255,255,0.06); }
+body.light-mode .desktop-status .status-item{ background: rgba(255,255,255,0.03); color: #fff; }
 
 /* wallpaper feel */
 .alt-mode #bgCanvas{ filter: blur(4px) brightness(0.6) saturate(1.1); transform: scale(1.03); }
@@ -671,18 +690,53 @@ body.light-mode .desktop-status .status-item{ background: rgba(0,0,0,0.03); colo
   background-repeat: no-repeat;
 }
 
-.app-icon{
-  width:110px; height:110px; display:flex; gap:8px; flex-direction:column; justify-content:center; align-items:center; text-align:center; padding:10px; border-radius:14px; cursor:pointer; background: linear-gradient(180deg, rgba(255,255,255,0.02), rgba(0,0,0,0.05));
-  color:var(--text); box-shadow: 0 8px 22px rgba(0,0,0,0.45); border:1px solid rgba(255,255,255,0.03); transition: transform .14s ease, box-shadow .14s ease; user-select:none;
-}
-.app-icon:hover{ transform: translateY(-6px); box-shadow: 0 16px 40px rgba(0,0,0,0.55); }
-.app-icon .icon-img{ width:60px; height:60px; border-radius:12px; object-fit:cover; background: linear-gradient(180deg, rgba(255,255,255,0.02), rgba(0,0,0,0.06)); border: 1px solid rgba(255,255,255,0.04); box-shadow: 0 6px 18px rgba(0,0,0,0.4) inset; }
-.app-icon .icon-label{ font-size:0.8rem; color:var(--muted); font-weight:700; letter-spacing:0.2px; }
 
-.desktop-dock{
-  position:fixed; left:50%; transform:translateX(-50%); bottom:18px; height:68px; display:flex; align-items:center; backdrop-filter: blur(6px); padding:8px 12px; gap:10px; border-radius:18px; pointer-events:auto; z-index:10000; border:1px solid rgba(255,255,255,0.04);
+/* App icon: icon only, no box, no border, no shadow in alt-mode */
+.alt-mode .app-icon {
+  width: 64px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+  padding: 0;
+  margin: 0 8px 18px 8px;
+  background: none !important;
+  border: none !important;
+  box-shadow: none !important;
+  border-radius: 0 !important;
+  transition: transform .14s;
+  cursor: pointer;
+  user-select: none;
 }
-.desktop-dock .dock-icon{ width:56px; height:56px; display:flex; align-items:center; justify-content:center; background: linear-gradient(180deg, rgba(255,255,255,0.02), rgba(0,0,0,0.04)); border-radius:12px; box-shadow: 0 6px 18px rgba(0,0,0,0.4); border:1px solid rgba(255,255,255,0.03); cursor:pointer; }
+.alt-mode .app-icon:hover {
+  transform: scale(1.12);
+  box-shadow: none;
+}
+.alt-mode .app-icon .icon-img {
+  width: 100%;
+  height: 64px;
+  border-radius: 14px;
+  object-fit: cover;
+  background: none !important;
+  border: none !important;
+  box-shadow: none !important;
+}
+.alt-mode .app-icon .icon-label {
+  display: block !important;
+  margin-top: 6px;
+  font-size: 0.78rem;
+  color: #e8e8e8;
+  text-align: center;
+  font-weight: 500;
+  letter-spacing: 0.01em;
+  text-shadow: 0 1px 4px rgba(0,0,0,0.18);
+  max-width: 80px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* bottom dock removed */
 
 .desktop-windows{ position:fixed; inset:0; z-index:1100; pointer-events:none; }
 .app-window{ position:absolute; width:480px; max-width:95%; min-height:240px; background:var(--card-bg); border-radius:12px; box-shadow: 0 40px 120px rgba(0,0,0,0.6); border:1px solid rgba(255,255,255,0.03); pointer-events:auto; overflow:hidden; display:flex; flex-direction:column; }
@@ -700,15 +754,65 @@ body.light-mode .desktop-status .status-item{ background: rgba(0,0,0,0.03); colo
 
 .app-window.maximized{ left: 8px !important; top: 68px !important; right: 8px !important; width: calc(100% - 16px) !important; height: calc(100% - 90px) !important; border-radius: 8px; }
 
+/* About window specific styling: wider / horizontal layout and grey background */
+.app-window[data-about="1"]{
+  width: 1100px !important;
+  min-height: 320px;
+  max-width: 96%;
+  border-radius: 12px;
+  /* dark grey panel so white text reads well */
+  background: linear-gradient(180deg,#33363a 0%, #232629 100%);
+  color: #fff; /* popup text should be white */
+  box-shadow: 0 40px 120px rgba(0,0,0,0.6), inset 0 6px 18px rgba(255,255,255,0.02);
+  border: 1px solid rgba(255,255,255,0.03);
+}
+.app-window[data-about="1"] .win-header{ background: linear-gradient(180deg, rgba(0,0,0,0.03), rgba(0,0,0,0.01)); }
+.app-window[data-about="1"] .win-title{ color: #fff; }
+.app-window[data-about="1"] .win-body{ display:flex; gap:18px; padding:18px; align-items:flex-start; }
+.app-window[data-about="1"] .win-body{ display:flex; gap:26px; padding:22px; align-items:flex-start; }
+.app-window[data-about="1"] .win-body img,
+.app-window[data-about="1"] .win-body .profile-pic{
+  /* ensure the About image fits its container and stays centered instead of being cropped */
+  width: 100%;
+  max-width: 160px;
+  height: auto;
+  object-fit: contain; /* show the whole picture without cropping */
+  object-position: center;
+  display: block;
+  margin: 0 auto;
+  border-radius: 14px;
+  border: 1px solid rgba(0,0,0,0.06);
+  box-shadow: 0 8px 30px rgba(0,0,0,0.12);
+}
+.app-window[data-about="1"] .win-body .about-content{ flex:1; color:#fff; }
+.app-window[data-about="1"] .win-body .about-content h2{ margin:0 0 8px 0; font-size:1.3rem; }
+.app-window[data-about="1"] .win-body .about-content h3{ margin:6px 0; font-size:1rem; color:#fff }
+.app-window[data-about="1"] .win-body .about-content p{ font-size:0.95rem }
+.app-window[data-about="1"] .win-body .about-content h2{ margin-top:0; color:#fff; }
+.app-window[data-about="1"] .win-body .about-content p{ color:#fff; line-height:1.4 }
+
+/* dark-mode variants to keep contrast on About window */
+.alt-mode .app-window[data-about="1"]{
+  background: linear-gradient(180deg,#2b2b34,#1f1f24); color: #fff; border:1px solid rgba(255,255,255,0.04);
+  box-shadow: 0 50px 160px rgba(0,0,0,0.8);
+}
+.alt-mode .app-window[data-about="1"] .win-title{ color:#fff; }
+.alt-mode .app-window[data-about="1"] .win-body .about-content{ color:#fff; }
+
+@media (max-width: 1000px){
+  .app-window[data-about="1"]{ width:90% !important; min-height:320px }
+  .app-window[data-about="1"]{ width:96% !important; min-height:360px }
+  .app-window[data-about="1"] .win-body{ flex-direction:column; align-items:center }
+  .app-window[data-about="1"] .win-body .about-content{ width:100% }
+}
+
 /* Dock restore area */
-.desktop-dock .dock-space{ width: 220px; display:flex; gap:8px; align-items:center; justify-content:center; }
-.desktop-dock .restore-icon{ width:44px; height:44px; border-radius:8px; background:rgba(255,255,255,0.03); display:flex; align-items:center; justify-content:center; cursor:pointer; border:1px solid rgba(255,255,255,0.03); }
-.desktop-dock .restore-icon img{ width:84%; height:84%; object-fit:cover; border-radius:6px; }
+.desktop-dock{ display:none; }
 
 /* responsive adjustments for small screens */
 @media (max-width: 600px){
   .app-icon{ width:84px; height:84px }
-  .desktop-dock{ bottom:12px; height:56px }
+  .desktop-dock{ display:none; }
   .app-window{ width:90%; left:5%; top:10%; }
 }
 
@@ -738,6 +842,7 @@ body.light-mode .desktop-status .status-item{ background: rgba(0,0,0,0.03); colo
   box-shadow: 0 0 8px #00ffff;
 }
 
+
 .shooting-star-button {
   position: fixed;
   bottom: 30px;
@@ -755,6 +860,10 @@ body.light-mode .desktop-status .status-item{ background: rgba(0,0,0,0.03); colo
 }
 .shooting-star-button:hover {
   background: #333;
+}
+/* Hide shooting star button in alt-mode */
+.alt-mode .shooting-star-button {
+  display: none !important;
 }
 
 .comet-btn {
