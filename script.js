@@ -484,6 +484,32 @@ function buildDesktopApps(){
   // create a window element when opening
 
   function openAppWindow(index, projectCard){
+    // if a window for this project already exists, focus/restore it instead of creating another
+    const existingWin = document.querySelector(`.app-window[data-project-index="${index}"]`);
+    if(existingWin){
+      // if minimized -> restore from dock
+      if(getComputedStyle(existingWin).display === 'none'){
+        // find corresponding dock entry and animate restore if possible
+        const dockRoot = getDockRoot();
+        const id = existingWin.dataset.winId;
+        const entry = id ? dockRoot?.querySelector(`.dock-item[data-win-id="${id}"]`) : null;
+        if(entry){
+          restoreWindowFromDock(existingWin, entry);
+        } else {
+          existingWin.style.display = 'flex';
+          existingWin.style.zIndex = ++__zCounter;
+          existingWin.classList.add('focused');
+        }
+        return existingWin;
+      }
+
+      // already visible -> bring to front and focus
+      __zCounter += 1;
+      existingWin.style.zIndex = __zCounter;
+      document.querySelectorAll('.app-window.focused').forEach(w=>w.classList.remove('focused'));
+      existingWin.classList.add('focused');
+      return existingWin;
+    }
     // Use project info for popup
     const title = projectCard.querySelector('.project-title')?.textContent?.trim() || `App ${index + 1}`;
     const desc = projectCard.querySelector('.project-desc')?.textContent?.trim() || '';
@@ -505,6 +531,8 @@ function buildDesktopApps(){
     win.style.top = '50%';
     win.style.transform = 'translate(-50%, -50%)';
     win.style.zIndex = (++__zCounter);
+    // mark window with a project index so only one instance exists for each project
+    win.dataset.projectIndex = index;
 
     win.innerHTML = `
       <div class="win-header" role="toolbar" aria-label="${title} window controls">
