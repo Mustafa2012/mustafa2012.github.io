@@ -763,9 +763,9 @@ body.light-mode .desktop-status .status-item{ background: rgba(255,255,255,0.03)
   transition: transform 320ms cubic-bezier(.2,.9,.2,1), opacity 200ms linear;
 }
 
-/* App popups should be light grey (not the dark about popup) */
+
 .app-window:not([data-about="1"]) {
-  /* slightly darker, warmer grey for better contrast */
+ 
   background: linear-gradient(180deg,#e9edf1 0%, #dfe6ea 100%);
   color: #111;
   border: 1px solid rgba(0,0,0,0.09);
@@ -929,20 +929,7 @@ body.light-mode .desktop-status .status-item{ background: rgba(255,255,255,0.03)
   display: none !important;
 }
 
-.comet-btn {
-  position: fixed;
-  bottom: 20px;
-  right: 20px;
-  background: #16a599;
-  color: rgb(39, 38, 38);
-  padding: 10px 20px;
-  font-size: 1rem;
-  border: none;
-  border-radius: 10px;
-  cursor: pointer;
-  z-index: 1000;
-  transition: background 0.3s, color 0.3s;
-}
+
 
 body.light-mode .comet-btn {
   background: #ddd;

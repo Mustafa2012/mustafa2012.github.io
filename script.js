@@ -3,7 +3,7 @@ document.addEventListener("DOMContentLoaded", () => {
   initBackground();
   initTheme();
   initAltLayout();
-  // open the About popup immediately on page load
+  
   openAboutWindow();
 });
 
@@ -42,13 +42,13 @@ document.addEventListener("DOMContentLoaded", updateButtonText);
     ring.style.top = `${y}px`;
   });
 
-  // add small interactive behavior for the custom cursor (used in alt-mode)
+  
   if(dot){
-    // press animations
+    
     document.addEventListener('mousedown', ()=> dot.classList.add('cursor-press'));
     document.addEventListener('mouseup', ()=> dot.classList.remove('cursor-press'));
 
-    // enlarge slightly over interactive elements so users still get affordance
+
     const interactiveSelector = 'a, button, input, select, textarea, [role="button"], .app-icon';
     document.addEventListener('mouseover', (ev) => {
       if(ev.target.closest && ev.target.closest(interactiveSelector)) dot.classList.add('cursor-hover');
@@ -246,7 +246,7 @@ document.querySelectorAll('.project-card').forEach(card => {
 /* --------------------- Theme system --------------------- */
 function initTheme(){
   const select = document.getElementById('theme-select');
-  if(!select) return; // nothing to do if selector missing
+  if(!select) return; 
 
   const saved = localStorage.getItem('theme') || 'dark';
   select.value = saved;
@@ -262,7 +262,7 @@ function initTheme(){
 function applyTheme(theme){
   document.body.classList.remove('light-mode','alt-mode');
   if(theme === 'light') document.body.classList.add('light-mode');
-  // reflect in UI text and visuals
+  
   updateButtonText();
 }
 
@@ -284,13 +284,13 @@ function initAltLayout(){
   });
 }
 
-// Reset UI removed (control deleted) — users can toggle Alternate Mode off via top-left control
+
 
 function applyAlt(on){
   if(on) document.body.classList.add('alt-mode');
   else document.body.classList.remove('alt-mode');
   updateButtonText();
-  // hide/cleanup windows when toggling off
+
   if(!on){
     const windowsRoot = document.getElementById('desktop-windows');
     if(windowsRoot) windowsRoot.innerHTML = '';
@@ -302,7 +302,7 @@ let __desktopBuilt = false;
 let __zCounter = 1500;
 let __clockInterval = null;
 
-// --- Dock helpers (global) ---
+
 function getDockRoot(){ return document.getElementById('desktop-dock-inner'); }
 function addToDock(win, title, imgSrc){
   const dockRoot = getDockRoot(); if(!dockRoot) return null;
@@ -312,12 +312,12 @@ function addToDock(win, title, imgSrc){
   const entry = document.createElement('div');
   entry.className = 'dock-item'; entry.dataset.winId = id;
   entry.innerHTML = `<img src="${imgSrc || ''}" alt="${title}"><div class="dock-label">${title}</div>`;
-  // make entry initially invisible so we can animate the window into it
+  
   entry.style.opacity = '0';
   entry.addEventListener('click', ()=>{
     const w = document.querySelector(`.app-window[data-win-id="${id}"]`);
     if(w){
-      // animate restore from dock to window
+      
       restoreWindowFromDock(w, entry);
     }
   });
@@ -325,23 +325,23 @@ function addToDock(win, title, imgSrc){
   return entry;
 }
 
-// animate minimize: move a window into the dock entry
+
 function animateMinimizeToDock(win, title, imgSrc){
   if(!win) return;
   const entry = addToDock(win, title, imgSrc);
   if(!entry) {
-    // fallback: just hide
+    
     win.style.display = 'none';
     return;
   }
 
   const img = entry.querySelector('img');
 
-  // measure
+  
   const winRect = win.getBoundingClientRect();
   const dockRect = img ? img.getBoundingClientRect() : { left: window.innerWidth/2, top: window.innerHeight-40, width:48, height:48 };
 
-  // store previous position for restoring
+  
   win.dataset.prevLeft = parseInt(win.style.left || winRect.left);
   win.dataset.prevTop = parseInt(win.style.top || winRect.top);
 
@@ -353,10 +353,10 @@ function animateMinimizeToDock(win, title, imgSrc){
   const dy = Math.round(dockCenterY - winCenterY);
   const scale = Math.max(0.12, dockRect.width / winRect.width);
 
-  // make sure entry is invisible (it was created with opacity:0) and then animate window to it
+  
   entry.style.opacity = '0';
 
-  // prepare animation
+  
   win.classList.add('minimizing');
   win.style.transition = 'transform 320ms cubic-bezier(.2,.9,.2,1), opacity 220ms linear';
   win.style.transform = `translate(${dx}px, ${dy}px) scale(${scale})`;
@@ -369,7 +369,7 @@ function animateMinimizeToDock(win, title, imgSrc){
     win.style.transform = '';
     win.style.opacity = '';
     win.removeEventListener('transitionend', onEnd);
-    // reveal dock entry after animation
+    
     entry.style.transition = 'opacity 180ms linear';
     entry.style.opacity = '1';
   }
@@ -377,24 +377,24 @@ function animateMinimizeToDock(win, title, imgSrc){
   win.addEventListener('transitionend', onEnd);
 }
 
-// animate restore: take a dock entry and the window, animate window expanding from dock to stored position
+
 function restoreWindowFromDock(win, entry){
   if(!win) { if(entry) entry.remove(); return; }
-  // remove dock entry after we start restore animation
+  
   const img = entry.querySelector('img');
-  // compute bounds
-  // make window visible temporarily (hidden) to measure size
+
+  
   const wasHidden = win.style.display === 'none' || getComputedStyle(win).display === 'none';
   win.style.display = 'flex';
   win.style.visibility = 'hidden';
 
-  // read sizes
+  
   const winRect = win.getBoundingClientRect();
   const targetLeft = parseInt(win.dataset.prevLeft || winRect.left);
   const targetTop = parseInt(win.dataset.prevTop || winRect.top);
 
-  // target final position should be the previous left/top we saved
-  // compute dock image center
+  
+  
   const dockRect = img ? img.getBoundingClientRect() : {left: window.innerWidth/2, top: window.innerHeight - 40, width: 48, height:48};
   const dockCenterX = dockRect.left + dockRect.width/2;
   const dockCenterY = dockRect.top + dockRect.height/2;
@@ -405,19 +405,19 @@ function restoreWindowFromDock(win, entry){
   const dy = dockCenterY - winCenterY;
   const scale = Math.max(0.18, (dockRect.width / winRect.width));
 
-  // position window at its final coords for correct transform origin
+  
   win.style.left = targetLeft + 'px';
   win.style.top = targetTop + 'px';
   win.dataset.winId = win.dataset.winId || `win-${Date.now()}-${Math.random().toString(36).slice(2,6)}`;
 
-  // set initial transform so it looks like it's coming from the dock
+  
   win.style.transform = `translate(${dx}px, ${dy}px) scale(${scale})`;
   win.style.opacity = '0.05';
   win.style.visibility = 'visible';
 
-  // trigger reflow then animate to identity
+  
   requestAnimationFrame(()=>{
-    // mark restoring state
+    
     win.classList.add('restoring');
     win.style.transform = '';
     win.style.opacity = '1';
@@ -447,49 +447,162 @@ function buildDesktopApps(){
   const windowsRoot = document.getElementById('desktop-windows');
   if(!desktopArea || !windowsRoot) return;
 
-  // Build generic app icons (no personal/project details)
-  const projects = document.querySelectorAll('.project-card');
-  projects.forEach((p, idx) => {
-    // Use project title if available, else fallback
-    let appTitle = p.querySelector('.project-title')?.textContent?.trim() || `App ${idx + 1}`;
-    const imgElem = p.querySelector('.project-image');
-    const imgSrc = imgElem ? (imgElem.src || '') : '';
+  
+    
+    const appItems = [];
 
-    // create icon
-    const icon = document.createElement('div');
-    icon.className = 'app-icon';
-    icon.setAttribute('role','button');
-    icon.setAttribute('tabindex','0');
-    icon.dataset.projectIndex = idx;
-    icon.innerHTML = `\n      <div class="icon-img">${imgSrc ? `<img src="${imgSrc}" alt="${appTitle}" style="width:100%;height:100%;border-radius:10px;object-fit:cover;">` : '<div style="width:100%;height:100%;background:linear-gradient(90deg,#3b3b3b,#1a1a1a);border-radius:8px"></div>'}</div>\n      <div class="icon-label">${appTitle}</div>`;
+    
+    document.querySelectorAll('.project-card').forEach((p, idx) => {
+      const title = p.querySelector('.project-title')?.textContent?.trim() || `Project ${idx + 1}`;
+      const img = p.querySelector('.project-image');
+      const desc = p.querySelector('.project-desc')?.textContent?.trim() || '';
+      const tags = Array.from(p.querySelectorAll('.project-tags span') || []).map(s => s.textContent.trim());
+      const links = Array.from(p.querySelectorAll('.project-links a') || []).map(a => ({ href: a.href, text: a.textContent.trim(), target: a.target || '', rel: a.rel || '' }));
+      appItems.push({ id: `project-${idx}`, type: 'project', title, imgSrc: img ? img.src : '', desc, tags, links, source: p });
+    });
 
-    // click/enter opens the app window
-    icon.addEventListener('click', () => openAppWindow(idx, p));
-    icon.addEventListener('keydown', (e) => { if(e.key === 'Enter' || e.key === ' ') { openAppWindow(idx, p); e.preventDefault(); } });
+    
+    document.querySelectorAll('.book-card').forEach((b, idx) => {
+      const title = b.querySelector('h3')?.textContent?.trim() || (`Book ${idx+1}`);
+      const img = b.querySelector('.book-cover');
+      const desc = b.querySelector('p')?.textContent?.trim() || '';
+      appItems.push({ id: `book-${idx}`, type: 'book', title, imgSrc: img ? img.src : '', desc, source: b });
+    });
 
-    desktopArea.appendChild(icon);
-    // no dock icon created — desktop is privacy/clean (no bottom panel)
-  });
+    
+    document.querySelectorAll('.book-card-square').forEach((b, idx) => {
+      const title = b.querySelector('h3')?.textContent?.trim() || (`BookS ${idx+1}`);
+      const img = b.querySelector('img');
+      const desc = b.querySelector('p')?.textContent?.trim() || '';
+      appItems.push({ id: `book-s-${idx}`, type: 'book', title, imgSrc: img ? img.src : '', desc, source: b });
+    });
 
-  // small helper: bring window to front
+    
+    const aboutSection = document.getElementById('about');
+    if(aboutSection){
+      appItems.push({ id: 'about-app', type: 'about', title: 'About', imgSrc: document.querySelector('.profile-pic')?.src || '', source: aboutSection });
+    }
+
+    
+    const contact = document.getElementById('contact');
+    if(contact){
+      const links = Array.from(contact.querySelectorAll('a')).slice(0,3);
+      links.forEach((a, i)=>{
+        const title = a.title || a.getAttribute('href') || `Contact ${i+1}`;
+        appItems.push({ id: `contact-${i}`, type: 'contact', title, imgSrc: '', source: a, links: [{ href: a.href, text: title, target: a.target || '_blank', rel: a.rel || '' }] });
+      });
+    }
+
+    
+    if(appItems.length === 0){
+      appItems.push({ id: 'fallback-1', type:'misc', title:'App', imgSrc:'' });
+    }
+
+    
+    function makeFallbackIcon(title, idx){
+      const colors = ['#ff6b6b','#6bffb8','#6bc3ff','#ffd36b','#b58eff','#7df9ff'];
+      const c = colors[idx % colors.length];
+      const letter = (title || '?').charAt(0).toUpperCase();
+      return `<div style="width:100%;height:100%;border-radius:12px;display:flex;align-items:center;justify-content:center;background:linear-gradient(180deg, ${c}cc, ${c}88);color:#111;font-weight:800;font-size:22px;">${letter}</div>`;
+    }
+
+    
+    function makeIconDraggable(icon, container){
+      let dragging = false;
+      let startX = 0, startY = 0, startLeft = 0, startTop = 0, pointerId = null;
+      icon.addEventListener('pointerdown', (e) => {
+        if(e.button !== 0) return; 
+        pointerId = e.pointerId;
+        icon.setPointerCapture(pointerId);
+        const areaRect = container.getBoundingClientRect();
+        const iconRect = icon.getBoundingClientRect();
+        startX = e.clientX; startY = e.clientY;
+        startLeft = iconRect.left - areaRect.left; startTop = iconRect.top - areaRect.top;
+
+        
+
+        
+        if(getComputedStyle(icon).position !== 'absolute'){
+          icon.style.position = 'absolute';
+          icon.style.left = `${startLeft}px`;
+          icon.style.top = `${startTop}px`;
+        }
+        icon.style.zIndex = ++__zCounter;
+
+        function onPointerMove(ev){
+          const dx = ev.clientX - startX, dy = ev.clientY - startY;
+          if(!dragging){ if(Math.abs(dx) > 6 || Math.abs(dy) > 6){ dragging = true; icon.classList.add('dragging'); } else return; }
+          const newLeft = Math.max(6, startLeft + dx);
+          const newTop = Math.max(6, startTop + dy);
+          icon.style.left = `${newLeft}px`;
+          icon.style.top = `${newTop}px`;
+
+          
+        }
+
+        function onPointerUp(ev){
+          icon.releasePointerCapture(pointerId);
+          document.removeEventListener('pointermove', onPointerMove);
+          document.removeEventListener('pointerup', onPointerUp);
+          if(dragging){
+            
+            icon.classList.remove('dragging');
+            dragging = false;
+          }
+        }
+
+        document.addEventListener('pointermove', onPointerMove);
+        document.addEventListener('pointerup', onPointerUp);
+      });
+    }
+
+    
+    appItems.forEach((item, idx) => {
+      const icon = document.createElement('div');
+      icon.className = 'app-icon';
+      icon.setAttribute('role','button');
+      icon.setAttribute('tabindex','0');
+      icon.dataset.appId = item.id;
+
+      let innerImgHTML = '';
+      if(item.imgSrc){
+        innerImgHTML = `<img src="${item.imgSrc}" alt="${item.title}" style="width:100%;height:100%;border-radius:10px;object-fit:cover;">`;
+      } else if(item.type === 'contact' && item.source instanceof Element){
+        const iconMarkup = item.source.innerHTML || '';
+        innerImgHTML = `<div style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;border-radius:12px;background:linear-gradient(180deg,#ffffff,#f0f0f0);font-size:20px;color:#0b444e;">${iconMarkup}</div>`;
+      } else {
+        innerImgHTML = makeFallbackIcon(item.title, idx);
+      }
+
+      icon.innerHTML = `\n      <div class="icon-img">${innerImgHTML}</div>\n      <div class="icon-label">${item.title}</div>`;
+
+      icon.addEventListener('click', () => openAppWindow(item.id, item));
+      icon.addEventListener('keydown', (e) => { if(e.key === 'Enter' || e.key === ' ') { openAppWindow(item.id, item); e.preventDefault(); } });
+
+      desktopArea.appendChild(icon);
+    });
+
+
+
+  
   function focusWindow(win){
     __zCounter += 1;
     win.style.zIndex = __zCounter;
     document.querySelectorAll('.app-window.focused').forEach(w=>w.classList.remove('focused'));
     win.classList.add('focused');
 
-    // (dock helpers moved to global scope)
+    
   }
 
-  // create a window element when opening
+  
 
-  function openAppWindow(index, projectCard){
-    // if a window for this project already exists, focus/restore it instead of creating another
-    const existingWin = document.querySelector(`.app-window[data-project-index="${index}"]`);
+  function openAppWindow(appKey, projectCard){
+    
+    const existingWin = document.querySelector(`.app-window[data-app-key="${appKey}"]`);
     if(existingWin){
-      // if minimized -> restore from dock
+      
       if(getComputedStyle(existingWin).display === 'none'){
-        // find corresponding dock entry and animate restore if possible
+        
         const dockRoot = getDockRoot();
         const id = existingWin.dataset.winId;
         const entry = id ? dockRoot?.querySelector(`.dock-item[data-win-id="${id}"]`) : null;
@@ -503,36 +616,57 @@ function buildDesktopApps(){
         return existingWin;
       }
 
-      // already visible -> bring to front and focus
+      
       __zCounter += 1;
       existingWin.style.zIndex = __zCounter;
       document.querySelectorAll('.app-window.focused').forEach(w=>w.classList.remove('focused'));
       existingWin.classList.add('focused');
       return existingWin;
     }
-    // Use project info for popup
-    const title = projectCard.querySelector('.project-title')?.textContent?.trim() || `App ${index + 1}`;
-    const desc = projectCard.querySelector('.project-desc')?.textContent?.trim() || '';
-    const tags = Array.from(projectCard.querySelectorAll('.project-tags span')).map(e => e.textContent.trim());
-    const links = Array.from(projectCard.querySelectorAll('.project-links a')).map(a => ({
-      href: a.href,
-      text: a.textContent.trim(),
-      target: a.target || '',
-      rel: a.rel || ''
-    }));
-    const imgElem = projectCard.querySelector('.project-image');
-    const imgSrc = imgElem ? (imgElem.src || '') : '';
+    
+    let title = 'App';
+    let desc = '';
+    let tags = [];
+    let links = [];
+    let imgSrc = '';
 
-    // window container
+    const isDescriptor = projectCard && typeof projectCard === 'object' && !projectCard.nodeType;
+    if(isDescriptor){
+      
+      if(projectCard.source && projectCard.source.nodeType){
+        const src = projectCard.source;
+        title = projectCard.title || src.querySelector('.project-title')?.textContent?.trim() || src.querySelector('h3')?.textContent?.trim() || title;
+        desc = projectCard.desc || src.querySelector('.project-desc')?.textContent?.trim() || src.querySelector('.book-content p')?.textContent?.trim() || src.querySelector('.book-info p')?.textContent?.trim() || '';
+        tags = projectCard.tags || Array.from(src.querySelectorAll('.project-tags span')||[]).map(e=>e.textContent.trim());
+        links = projectCard.links || Array.from(src.querySelectorAll('.project-links a')||[]).map(a=>({ href: a.href, text: a.textContent.trim(), target: a.target||'', rel: a.rel||'' }));
+        const imgElem = src.querySelector('.project-image') || src.querySelector('.book-cover') || src.querySelector('img');
+        imgSrc = projectCard.imgSrc || (imgElem ? (imgElem.src || '') : '');
+      } else {
+        title = projectCard.title || title;
+        desc = projectCard.desc || '';
+        tags = projectCard.tags || [];
+        links = projectCard.links || [];
+        imgSrc = projectCard.imgSrc || '';
+      }
+    } else {
+      title = projectCard?.querySelector('.project-title')?.textContent?.trim() || projectCard?.querySelector('.book-content h3')?.textContent?.trim() || projectCard?.querySelector('.book-info h3')?.textContent?.trim() || projectCard?.querySelector('h3')?.textContent?.trim() || title;
+      desc = projectCard?.querySelector('.project-desc')?.textContent?.trim() || projectCard?.querySelector('.book-content p')?.textContent?.trim() || projectCard?.querySelector('.book-info p')?.textContent?.trim() || '';
+      tags = Array.from(projectCard?.querySelectorAll('.project-tags span') || []).map(e => e.textContent.trim());
+      links = Array.from(projectCard?.querySelectorAll('.project-links a') || []).map(a => ({ href: a.href, text: a.textContent.trim(), target: a.target || '', rel: a.rel || '' }));
+      const imgElem = projectCard?.querySelector('.project-image') || projectCard?.querySelector('.book-cover') || projectCard?.querySelector('img');
+      imgSrc = imgElem ? (imgElem.src || '') : '';
+    }
+
+    
     const win = document.createElement('div');
     win.className = 'app-window';
-    // start centered so the window opens in the middle of the viewport
+    
     win.style.left = '50%';
     win.style.top = '50%';
     win.style.transform = 'translate(-50%, -50%)';
     win.style.zIndex = (++__zCounter);
-    // mark window with a project index so only one instance exists for each project
-    win.dataset.projectIndex = index;
+    
+    win.dataset.appKey = appKey;
 
     win.innerHTML = `
       <div class="win-header" role="toolbar" aria-label="${title} window controls">
@@ -549,7 +683,7 @@ function buildDesktopApps(){
       <div class="win-body"></div>
     `;
 
-    // populate the window with project info
+    
     const bodyContainer = win.querySelector('.win-body');
     bodyContainer.innerHTML = `
       <div style="display:flex;flex-direction:column;gap:14px;height:100%;padding:8px 2px 2px 2px;">
@@ -567,7 +701,7 @@ function buildDesktopApps(){
 
     windowsRoot.appendChild(win);
 
-    // after added to DOM, compute accurate centered pixel position and clamp to viewport
+    
     const rect = win.getBoundingClientRect();
     let centeredLeft = Math.round((window.innerWidth - rect.width) / 2);
     let centeredTop = Math.round((window.innerHeight - rect.height) / 2);
@@ -578,49 +712,36 @@ function buildDesktopApps(){
     win.style.left = centeredLeft + 'px';
     win.style.top = centeredTop + 'px';
 
-    // focus
+    
     focusWindow(win);
 
-    // draggable header
-    const header = win.querySelector('.win-header');
-    let dragging = false, startX=0, startY=0, startLeft=0, startTop=0;
-    header.addEventListener('mousedown', (ev)=>{
-      dragging = true; startX = ev.clientX; startY = ev.clientY;
-      startLeft = parseInt(win.style.left || 100); startTop = parseInt(win.style.top || 80);
-      win.style.transition = 'none'; win.style.cursor = 'grabbing';
-      focusWindow(win);
-      ev.preventDefault();
-    });
-    document.addEventListener('mousemove', (ev)=>{
-      if(!dragging) return; const dx = ev.clientX - startX, dy = ev.clientY - startY;
-      win.style.left = `${startLeft + dx}px`; win.style.top = `${startTop + dy}px`;
-    });
-    document.addEventListener('mouseup', ()=>{ if(dragging){ dragging=false; win.style.cursor='default'; win.style.transition = ''; }});
+    
+    
 
-    // focus on click
+    
     win.addEventListener('mousedown', ()=> focusWindow(win));
 
-    // close/min/max
+    
     const closeBtn = win.querySelector('.win-close');
     const minBtn = win.querySelector('.win-min');
     const toggleBtn = win.querySelector('.win-toggle');
 
     closeBtn.addEventListener('click', ()=>{ 
-      // remove any dock entry tied to this window
+      
       removeDockEntryForWin(win);
       win.remove();
     });
 
-    // min => minimize into dock (animated)
+    
     minBtn.addEventListener('click', ()=>{
-      // animate into dock
+      
       animateMinimizeToDock(win, title, imgSrc);
     });
 
     toggleBtn.addEventListener('click', ()=>{ win.classList.toggle('maximized'); focusWindow(win); });
   }
 
-  // expose for debugging
+
   window.openAppWindow = openAppWindow;
 }
 
@@ -630,7 +751,7 @@ function openAboutWindow(){
     const windowsRoot = document.getElementById('desktop-windows');
     if(!windowsRoot) return;
 
-    // If there's already an About window open, focus it instead
+    
     const existing = document.querySelector('.app-window[data-about="1"]');
     if(existing){ existing.style.display = 'flex'; existing.classList.add('focused'); existing.style.zIndex = ++__zCounter; return; }
 
@@ -640,7 +761,7 @@ function openAboutWindow(){
     const win = document.createElement('div');
     win.className = 'app-window';
     win.dataset.about = '1';
-    // start centered using transform so first render places the window near center
+    
     win.style.left = '50%';
     win.style.top = '50%';
     win.style.transform = 'translate(-50%, -50%)';
@@ -666,23 +787,22 @@ function openAboutWindow(){
     const body = win.querySelector('.win-body');
     if(aboutSection){
       const clone = aboutSection.cloneNode(true);
-      // ensure links open new tabs
+      
       clone.querySelectorAll('a').forEach(a => a.setAttribute('target','_blank'));
-      // prepend a profile image if available and not part of about
+      
       if(heroImg){
-        // create a fixed-width left pane that holds the profile image
+        
         const left = document.createElement('div');
         left.style.flex = '0 0 160px';
         left.style.display = 'flex';
         left.style.alignItems = 'center';
         left.style.justifyContent = 'center';
-        // keep a clean container and let CSS handle how the image fits inside
+        
         left.innerHTML = `<div style="width:160px;border-radius:12px;overflow:hidden;border:1px solid rgba(0,0,0,0.06);display:flex;align-items:center;justify-content:center;">${heroImg.outerHTML}</div>`;
 
         const right = document.createElement('div');
         right.className = 'about-content';
-        // if the about section contains the h2 and content, keep those but remove big headers
-        // we strip heavy layout and just move children
+        
         while(clone.childNodes.length) right.appendChild(clone.childNodes[0]);
 
         body.appendChild(left);
@@ -699,33 +819,28 @@ function openAboutWindow(){
 
     windowsRoot.appendChild(win);
 
-    // compute pixel-accurate centered position after render so dragging math is simpler
+    
     const rect = win.getBoundingClientRect();
     let centeredLeft = Math.round((window.innerWidth - rect.width) / 2);
     let centeredTop = Math.round((window.innerHeight - rect.height) / 2);
 
-    // clamp to a small margin to ensure the window never opens off-screen
+    
     const MARGIN = 12;
     centeredLeft = Math.max(MARGIN, centeredLeft);
     centeredTop = Math.max(MARGIN, centeredTop);
 
-    // remove transform and set explicit pixel positions for consistent dragging/focusing math
+    
     win.style.transform = '';
     win.style.left = centeredLeft + 'px';
     win.style.top = centeredTop + 'px';
 
-    // small helper to focus
+    
     function focusWindow(win){ __zCounter += 1; win.style.zIndex = __zCounter; document.querySelectorAll('.app-window.focused').forEach(w=>w.classList.remove('focused')); win.classList.add('focused'); }
     focusWindow(win);
 
-    // draggable
-    const header = win.querySelector('.win-header');
-    let dragging = false, startX=0, startY=0, startLeft=0, startTop=0;
-    header.addEventListener('mousedown', (ev)=>{ dragging = true; startX = ev.clientX; startY = ev.clientY; startLeft = parseInt(win.style.left) || 120; startTop = parseInt(win.style.top) || 60; win.style.transition = 'none'; win.style.cursor = 'grabbing'; focusWindow(win); ev.preventDefault(); });
-    document.addEventListener('mousemove', (ev)=>{ if(!dragging) return; const dx = ev.clientX - startX, dy = ev.clientY - startY; win.style.left = `${startLeft + dx}px`; win.style.top = `${startTop + dy}px`; });
-    document.addEventListener('mouseup', ()=>{ if(dragging){ dragging=false; win.style.cursor='default'; win.style.transition = ''; }});
+    
 
-    // close/min/max handlers
+
     win.querySelector('.win-close').addEventListener('click', ()=>{ removeDockEntryForWin(win); win.remove(); });
     win.querySelector('.win-min').addEventListener('click', ()=>{ animateMinimizeToDock(win, title, heroImg ? heroImg.src : ''); });
     win.querySelector('.win-toggle').addEventListener('click', ()=>{ 
