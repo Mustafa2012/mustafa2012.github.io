@@ -44,26 +44,9 @@ document.addEventListener("DOMContentLoaded", updateButtonText);
 
   
   if(dot){
-    
     document.addEventListener('mousedown', ()=> dot.classList.add('cursor-press'));
     document.addEventListener('mouseup', ()=> dot.classList.remove('cursor-press'));
-
-
-    const interactiveSelector = 'a, button, input, select, textarea, [role="button"], .app-icon';
-    document.addEventListener('mouseover', (ev) => {
-      if(ev.target.closest && ev.target.closest(interactiveSelector)) dot.classList.add('cursor-hover');
-    });
-    document.addEventListener('mouseout', (ev) => {
-      if(ev.target.closest && ev.target.closest(interactiveSelector)) dot.classList.remove('cursor-hover');
-    });
   }
-
-document.getElementById("free-gpu-btn").addEventListener("click", () => {
-  window.open("https://www.youtube.com/watch?v=dQw4w9WgXcQ", "_blank");
-});
-
-
-
 
 const typeText = ["I am a middle school student with a love for technology"];
 let typeIndex = 0, charIndex = 0;
